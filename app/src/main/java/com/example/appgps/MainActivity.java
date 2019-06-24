@@ -1,6 +1,7 @@
 package com.example.appgps;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -46,9 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         LocationListener listener = new LocationListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onLocationChanged(Location location) {
-               localizacao.append("\n " + location.getLongitude() + " " + location.getLatitude());
+               localizacao.setText("\n " + location.getLongitude() + " " + location.getLatitude());
             }
 
             @Override
