@@ -1,8 +1,10 @@
 package com.example.appgps;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -20,12 +22,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.appgps.BroadcastReceiver.BroadcastReceiverTeste;
 import com.example.appgps.Service.TesteService;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView localização;
+    private TextView localizacao;
     private LocationManager locationManager;
     private LocationListener listener;
+    private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +37,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         startService(new Intent(getBaseContext(), TesteService.class));
 
-        localização = findViewById(R.id.textView);
-
+        localizacao = findViewById(R.id.textView);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        Intent intent = new Intent(getApplicationContext(), BroadcastReceiverTeste.class);
+        intent.setAction("LOCALIZACAO_ATUAL");
+
 
 
         LocationListener listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                localização.append("\n " + location.getLongitude() + " " + location.getLatitude());
+               localizacao.append("\n " + location.getLongitude() + " " + location.getLatitude());
             }
 
             @Override
@@ -56,11 +63,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onProviderDisabled(String s) {
-                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(i);
+//                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                startActivity(i);
             }
         };
-        configure_button();
+                   // configure_button();
             }
 
 
@@ -77,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         locationManager.requestLocationUpdates("gps", 5000, 0, listener);
     }
 
-   
+
 
 
 }

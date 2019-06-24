@@ -20,11 +20,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".BroadcastReceiver.BroadcastReceiverTeste">
+
+        <receiver
+            android:name=".BroadcastReceiver.BroadcastReceiverTeste"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="LOCALIZACAO_ATUAL" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+
+
+
         <service android:name=".Service.TesteService"/>
     </application>
 
