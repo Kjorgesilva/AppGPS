@@ -44,8 +44,8 @@ public class TesteService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Worke w = new Worke(startId);
-        w.start();
+//        Worke w = new Worke(startId);
+//        w.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -62,7 +62,7 @@ public class TesteService extends Service {
         public void run() {
 
             while (ativo) {
-                Log.e("contador", "antes try ");
+                //Log.e("contador", "antes try ");
                 try {
 
                     Thread.sleep(1000);
@@ -71,14 +71,14 @@ public class TesteService extends Service {
                 }
                 count++;
                 Log.e("contador", "contador: " + count);
-                Looper.prepare();
-                Toast.makeText(getApplicationContext(), "contador" + count, Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "ativo: " + ativo, Toast.LENGTH_SHORT).show();
-
-                Log.e("contador", "antes do loop ");
-                Looper.loop();
-                Looper.getMainLooper().quit();
-                Log.e("contador", "depois loop ");
+//                Looper.prepare();
+//                Toast.makeText(getApplicationContext(), "contador" + count, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "ativo: " + ativo, Toast.LENGTH_SHORT).show();
+//
+//                Log.e("contador", "antes do loop ");
+//                Looper.loop();
+//                Looper.getMainLooper().quit();
+//                Log.e("contador", "depois loop ");
 
 
             }
