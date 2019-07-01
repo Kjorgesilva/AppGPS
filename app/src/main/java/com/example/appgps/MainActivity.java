@@ -6,8 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,10 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
-
-
 import com.example.appgps.ForeGround.MyForeGroundService;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -33,17 +27,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView localizacao;
-    private LocationManager locationManager;
-    private LocationListener listener;
     private Context contexto = this;
-    private Button botao;
-
     private static final int REQUEST_CHECK_SETTINGS = 214;
-    private static final int REQUEST_ENABLE_GPS = 516;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,19 +38,18 @@ public class MainActivity extends AppCompatActivity {
         intent.setAction(MyForeGroundService.ACTION_START_FOREGROUND_SERVICE);
         startService(intent);
 
-        Verificar verificar = new Verificar();
-
         //verifica se a permissão de localização foi aceita ou recusada
         if (verificaPermissaoLocalizacao()) {
             //se a permissão de localização foi aceita, chama o método que verifica o status (ligada ou desligada) de localização do sistema
             verificaStatusLocalizacao();
         } else {
             //se a permissão de localização não foi aceita, chama o método que requisita permissão novamente
-            verificar.requestPermission();
+            requestPermission();
         }
 
 
     }
+
     public boolean verificaPermissaoLocalizacao() {
         if (ContextCompat.checkSelfPermission(contexto,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -80,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
-
 
     public void verificaStatusLocalizacao() {
 
@@ -144,6 +127,41 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    public void requestPermission() {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+            //se não tiver a permissão e ela ja foi negada anteriormente, exibe uma explicação para o usuario
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                AlertDialog.Builder alerta = new AlertDialog.Builder(MainActivity.this);
+                alerta.setTitle("Atenção");
+                alerta.setMessage("É necessário que aceite a permissão de acesso a localização " +
+                        "para que as funções do aplicativo possam funcionar corretamente.");
+                alerta.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //abre o dialog padrão do android que não pode ser alterado, perguntando se o usuário aceita as permissões ou não
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                2);
+                    }
+                });
+                alerta.setCancelable(false);
+                alerta.show();
+
+            } else {
+                //se não tiver a permissão e ela nunca foi negada ou exibida para o usuário, exibe um dialog
+                //padrão do android que não pode ser alterado, perguntando se o usuário aceita as permissões ou não
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        2);
+
+            }
+
+
+        }
+    }
 
 }

@@ -20,9 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.appgps.MainActivity;
 import com.example.appgps.R;
-import com.example.appgps.Verificar;
 import com.example.appgps.WebService.LocalizacaoAtualWs;
 
 import java.util.HashMap;
@@ -39,7 +37,6 @@ public class MyForeGroundService extends Service {
     LocationManager locationManager;
     String lattitude, longitude;
     public Context contexto = this;
-    Verificar verificar = new Verificar();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -48,7 +45,6 @@ public class MyForeGroundService extends Service {
 
     @Override
     public void onCreate() {
-
         super.onCreate();
     }
 
@@ -140,8 +136,6 @@ public class MyForeGroundService extends Service {
                     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         Log.e("localizacao", "localização esta off");
-
-                        //verificar.requestPermission();
 
                     } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         getLocation();
