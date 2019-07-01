@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             verificaStatusLocalizacao();
         } else {
             //se a permissão de localização não foi aceita, chama o método que requisita permissão novamente
-            requestPermission();
+            requestPermission(this);
         }
 
 
@@ -127,16 +127,17 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void requestPermission() {
-        if (ActivityCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    public void requestPermission(Context minhainstancia) {
+        String valor1 = Manifest.permission.ACCESS_FINE_LOCATION;
+        int valor2 = PackageManager.PERMISSION_GRANTED;
+        String valor3 = Manifest.permission.ACCESS_COARSE_LOCATION;
+
+        if (ActivityCompat.checkSelfPermission(minhainstancia, valor1) != valor2 && ActivityCompat.checkSelfPermission(minhainstancia,valor3) != valor2) {
 
             //se não tiver a permissão e ela ja foi negada anteriormente, exibe uma explicação para o usuario
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-                AlertDialog.Builder alerta = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder alerta = new AlertDialog.Builder(minhainstancia);
                 alerta.setTitle("Atenção");
                 alerta.setMessage("É necessário que aceite a permissão de acesso a localização " +
                         "para que as funções do aplicativo possam funcionar corretamente.");
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                                 2);
                     }
                 });
+
                 alerta.setCancelable(false);
                 alerta.show();
 

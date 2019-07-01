@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +14,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Looper;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -38,6 +39,7 @@ public class MyForeGroundService extends Service {
     String lattitude, longitude;
     public Context contexto = this;
 
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -56,11 +58,11 @@ public class MyForeGroundService extends Service {
             switch (action) {
                 case ACTION_START_FOREGROUND_SERVICE:
                     startForegroundService();
-
-                    // Toast.makeText(getApplicationContext(), "Ligado", Toast.LENGTH_LONG).show();
                     MyForeGroundService.Worke w = new Worke(startId);
                     w.start();
                     break;
+
+
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -75,18 +77,20 @@ public class MyForeGroundService extends Service {
         }
 
         Intent intent = new Intent();
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channel);
         builder.setWhen(System.currentTimeMillis());
         builder.setSmallIcon(R.drawable.ic_simbolo_logo_sighra_color);
         builder.setSubText("Localização");
 
+        //aparecer um card antes
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+//        builder.setFullScreenIntent(pendingIntent, true);
+
+
         // Texto do card
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.setBigContentTitle("SIGhRA");
-        bigTextStyle.bigText("Mensagem");
         builder.setStyle(bigTextStyle);
-        builder.setFullScreenIntent(pendingIntent, true);
 
         Notification notification = builder.setPriority(PRIORITY_MAX).setCategory(Notification.CATEGORY_SERVICE).build();
         // Start foreground service.
@@ -128,14 +132,27 @@ public class MyForeGroundService extends Service {
         }
 
         public void run() {
+            Looper.prepare();
+
             while (ativo) {
 
                 try {
                     Thread.sleep(1000);
 
+
                     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        Log.e("localizacao", "localização esta off");
+                        Log.e("gps","GPS Desligado");
+                        boolean enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        if (!enabled) {
+
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+
+
+                        }
+
 
                     } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         getLocation();
@@ -146,10 +163,10 @@ public class MyForeGroundService extends Service {
                 }
 
             }
+            Looper.loop();
         }
 
     }
-
 
     private void getLocation() {
         if (ActivityCompat.checkSelfPermission(contexto, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -157,6 +174,7 @@ public class MyForeGroundService extends Service {
                 (contexto, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
         } else {
+
             //GPS
             Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             //REDE
@@ -181,7 +199,7 @@ public class MyForeGroundService extends Service {
 
                 Log.e("localização", "Lattitude = " + lattitude
                         + "\n" + "Longitude = " + longitude);
-                // enviaValor(latti, longi);
+                //enviaValor(latti, longi);
 
 
             } else if (location2 != null) {

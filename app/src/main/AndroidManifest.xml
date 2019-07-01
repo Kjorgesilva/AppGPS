@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -21,14 +23,10 @@
             </intent-filter>
         </activity>
 
-
-
         <service
             android:name=".ForeGround.MyForeGroundService"
             android:enabled="true"
             android:exported="true" />
-
-        <service android:name=".Service.TesteService" />
     </application>
 
 </manifest>
