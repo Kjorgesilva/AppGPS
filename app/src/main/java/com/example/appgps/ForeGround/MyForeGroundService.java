@@ -13,13 +13,19 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.appgps.R;
 import com.example.appgps.WebService.LocalizacaoAtualWs;
@@ -38,6 +44,7 @@ public class MyForeGroundService extends Service {
     LocationManager locationManager;
     String lattitude, longitude;
     public Context contexto = this;
+    public Handler mHandler;
 
 
     @Override
@@ -47,6 +54,8 @@ public class MyForeGroundService extends Service {
 
     @Override
     public void onCreate() {
+
+        mHandler = new Handler();
         super.onCreate();
     }
 
@@ -131,24 +140,62 @@ public class MyForeGroundService extends Service {
             this.startId = startId;
         }
 
+
         public void run() {
-            Looper.prepare();
+
 
             while (ativo) {
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(5000);
 
 
                     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        Log.e("gps","GPS Desligado");
+                        Log.e("gps", "GPS Desligado");
                         boolean enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                         if (!enabled) {
 
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
+                            Handler mHandler = new Handler(Looper.getMainLooper());
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(contexto, "Ative a localição do seu aparelho", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                            });
+
+//                                    android.support.v7.app.AlertDialog.Builder alerta = new android.support.v7.app.AlertDialog.Builder(contexto);
+//
+//                                    LayoutInflater inflater = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                                    View n = inflater.inflate(R.layout.dialog, null);
+//                                    alerta.setView(n);
+//
+//                                    final AlertDialog fechar = alerta.create();
+//                                    fechar.setCanceledOnTouchOutside(false);
+//                                    Button btn = n.findViewById(R.id.btnFechar);
+//                                    btn.setOnClickListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View view) {
+//                                            Log.e("testeste", "Deu certo o alrta");
+//                                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                            startActivity(intent);
+//                                        }
+//                                    });
+//
+//
+//                                    alerta.setCancelable(false);
+//                                    alerta.show();
+//                                    Log.e("passou", "passou");
+
+
+//                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                            startActivity(intent);
 
 
                         }
@@ -163,7 +210,6 @@ public class MyForeGroundService extends Service {
                 }
 
             }
-            Looper.loop();
         }
 
     }
@@ -189,7 +235,7 @@ public class MyForeGroundService extends Service {
 
                 Log.e("localização", "Lattitude = " + lattitude
                         + "\n" + "Longitude = " + longitude);
-                // enviaValor(latti, longi);
+                enviaValor(latti, longi);
 
             } else if (locationREDE != null) {
                 double latti = locationREDE.getLatitude();
@@ -199,7 +245,7 @@ public class MyForeGroundService extends Service {
 
                 Log.e("localização", "Lattitude = " + lattitude
                         + "\n" + "Longitude = " + longitude);
-                //enviaValor(latti, longi);
+                enviaValor(latti, longi);
 
 
             } else if (location2 != null) {

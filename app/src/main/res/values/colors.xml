@@ -3,4 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="preto">#000000</color>
+    <color name="azul">#0A32DB</color>
+    <color name="brenco">#FFFFFF</color>
 </resources>

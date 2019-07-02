@@ -13,6 +13,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+
 import com.example.appgps.ForeGround.MyForeGroundService;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -165,5 +169,36 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    public void alerta (Context cont){
+
+
+        AlertDialog.Builder alerta = new AlertDialog.Builder(cont);
+
+        LayoutInflater inflater = (LayoutInflater) cont.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        View n = inflater.inflate(R.layout.dialog, null);
+        alerta.setView(n);
+
+        final AlertDialog fechar = alerta.create();
+        fechar.setCanceledOnTouchOutside(false);
+        Button btn = n.findViewById(R.id.btnFechar);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e("testeste","Deu certo o alrta");
+            }
+        });
+
+
+        alerta.setCancelable(false);
+        alerta.show();
+Log.e("passou", "passou");
+
+
+
+    }
+
+
+
 
 }
