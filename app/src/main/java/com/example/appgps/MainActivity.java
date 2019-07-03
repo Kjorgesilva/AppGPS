@@ -50,10 +50,7 @@ public class MainActivity extends AppCompatActivity {
             //se a permissão de localização não foi aceita, chama o método que requisita permissão novamente
             requestPermission(this);
         }
-
-
     }
-
     public boolean verificaPermissaoLocalizacao() {
         if (ContextCompat.checkSelfPermission(contexto,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -130,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     public void requestPermission(Context minhainstancia) {
         String valor1 = Manifest.permission.ACCESS_FINE_LOCATION;

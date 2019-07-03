@@ -5,14 +5,18 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -20,23 +24,23 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.appgps.MainActivity;
 import com.example.appgps.R;
 import com.example.appgps.WebService.LocalizacaoAtualWs;
 
+import java.util.FormatFlagsConversionMismatchException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.support.v4.app.NotificationCompat.PRIORITY_MAX;
+import static android.app.Notification.PRIORITY_MAX;
 
 public class MyForeGroundService extends Service {
     public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
+    public static final String ACTION_PRIMEIRO_BOTAO = "ACTION_PRIMEIRO_BOTAO";
+    public static final String ACTION_SEGUNDO_BOTAO = "ACTION_SEGUNDO_BOTAO";
 
 
     public boolean ativo = true;
@@ -71,7 +75,17 @@ public class MyForeGroundService extends Service {
                     w.start();
                     break;
 
+                case ACTION_PRIMEIRO_BOTAO:
+                    startForegroundService();
+                    Toast.makeText(contexto, "primeiro botao", Toast.LENGTH_SHORT).show();
+                    break;
 
+                case ACTION_SEGUNDO_BOTAO:
+                    startForegroundService();
+                    Intent i = new Intent(contexto, MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(i);
+                    break;
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -84,7 +98,6 @@ public class MyForeGroundService extends Service {
         else {
             channel = "";
         }
-
         Intent intent = new Intent();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channel);
         builder.setWhen(System.currentTimeMillis());
@@ -100,6 +113,21 @@ public class MyForeGroundService extends Service {
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.setBigContentTitle("SIGhRA");
         builder.setStyle(bigTextStyle);
+
+        // Primeiro Botao
+        Intent playIntent = new Intent(this, MyForeGroundService.class);
+        playIntent.setAction(ACTION_PRIMEIRO_BOTAO);
+        PendingIntent pendingPlayIntent = PendingIntent.getService(this, 0, playIntent, 0);
+        NotificationCompat.Action playAction = new NotificationCompat.Action(android.R.drawable.ic_media_play, "Toast", pendingPlayIntent);
+        builder.addAction(playAction);
+        //Segundo Botao
+        Intent intent1 = new Intent(this, MyForeGroundService.class);
+        intent1.setAction(ACTION_SEGUNDO_BOTAO);
+        PendingIntent pendingPla = PendingIntent.getService(this, 0, intent1, 0);
+
+        NotificationCompat.Action playActio = new NotificationCompat.Action(android.R.drawable.ic_lock_power_off, "Intent", pendingPla);
+        builder.addAction(playActio);
+
 
         Notification notification = builder.setPriority(PRIORITY_MAX).setCategory(Notification.CATEGORY_SERVICE).build();
         // Start foreground service.
@@ -147,7 +175,20 @@ public class MyForeGroundService extends Service {
             while (ativo) {
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(1000);
+
+                    if (isOnlineInternet()) {
+                        Log.e("net", "Internet ligada");
+                    } else {
+                        Log.e("net", "Internet desligada");
+                        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        Looper.prepare();
+                        Toast.makeText(contexto, "Ative o Wi-fi", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                        
+                    }
 
 
                     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -156,15 +197,26 @@ public class MyForeGroundService extends Service {
                         boolean enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                         if (!enabled) {
 
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            Looper.prepare();
+                            Toast.makeText(contexto, "Ative a localização do seu aparelho, (Alta precisão)", Toast.LENGTH_LONG).show();
+                            Looper.loop();
+
                             Handler mHandler = new Handler(Looper.getMainLooper());
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(contexto, "Ative a localição do seu aparelho", Toast.LENGTH_SHORT).show();
 
-                                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
+
+//                                    ligarGPS();
+
+
+//                                    MainActivity m = new MainActivity();
+//                                    m.requestPermission(contexto);
+//                                   // ActivityCompat.requestPermissions(, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+
                                 }
                             });
 
@@ -196,8 +248,6 @@ public class MyForeGroundService extends Service {
 //                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 //                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                            startActivity(intent);
-
-
                         }
 
 
@@ -213,29 +263,61 @@ public class MyForeGroundService extends Service {
         }
 
     }
+//    public Location getLastKnownLocation() {
+//        if (ActivityCompat.checkSelfPermission(contexto, Manifest.permission.ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
+//                (contexto, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//
+//        } else {
+//            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            if (location == null) {
+//                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//            }
+//            if (location == null) {
+//                location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+//            }
+//
+//
+//        }
+//    }
+
+    public boolean isOnlineInternet() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return manager.getActiveNetworkInfo() != null &&
+                manager.getActiveNetworkInfo().isConnectedOrConnecting();
+    }
+
+    public void ligarGPS() {
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        Toast.makeText(contexto, "Ative a localização do seu aparelho, (Alta precisão)", Toast.LENGTH_LONG).show();
+
+    }
 
     private void getLocation() {
+
         if (ActivityCompat.checkSelfPermission(contexto, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
                 (contexto, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
         } else {
-
             //GPS
             Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             //REDE
             Location locationREDE = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Location location2 = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            // getLastKnownLocation();
 
-            if (locationGPS != null) {
-                double latti = locationGPS.getLatitude();
+            if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+                double latti = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude();
                 double longi = locationGPS.getLongitude();
                 lattitude = String.valueOf(latti);
                 longitude = String.valueOf(longi);
 
-                Log.e("localização", "Lattitude = " + lattitude
-                        + "\n" + "Longitude = " + longitude);
-                enviaValor(latti, longi);
+                Log.e("localização", " Lattitude = " + lattitude + " Longitude = " + longitude);
+                // enviaValor(latti, longi);
 
             } else if (locationREDE != null) {
                 double latti = locationREDE.getLatitude();
@@ -243,9 +325,8 @@ public class MyForeGroundService extends Service {
                 lattitude = String.valueOf(latti);
                 longitude = String.valueOf(longi);
 
-                Log.e("localização", "Lattitude = " + lattitude
-                        + "\n" + "Longitude = " + longitude);
-                enviaValor(latti, longi);
+                Log.e("localização", " Lattitude = " + lattitude + " Longitude = " + longitude);
+                //enviaValor(latti, longi);
 
 
             } else if (location2 != null) {
@@ -254,14 +335,45 @@ public class MyForeGroundService extends Service {
                 lattitude = String.valueOf(latti);
                 longitude = String.valueOf(longi);
 
-                Log.e("localização", "Lattitude = " + lattitude
-                        + "\n" + "Longitude = " + longitude);
+                Log.e("localização", " Lattitude = " + lattitude + " Longitude = " + longitude);
 
             } else {
+                //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, (LocationListener) this);
+//                Log.e("log", "Não deu para rastrear: " );
 
-                Log.e("log", "Não deu para rastrear");
+
+                Log.e("gps", "Esperando GPS");
+                LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                MyLocationListener mlocListener = new MyLocationListener();
+                Looper.prepare();
+                mlocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, mlocListener);
+                Looper.loop();
+
 
             }
+        }
+    }
+
+
+    class MyLocationListener implements LocationListener {
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.e("localização", " Lattitude = " + location.getLongitude() + " Longitude = " + location.getLongitude());
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
         }
     }
 
