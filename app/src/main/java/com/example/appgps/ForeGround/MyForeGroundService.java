@@ -185,9 +185,9 @@ public class MyForeGroundService extends Service {
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         Looper.prepare();
-                        Toast.makeText(contexto, "Ative o Wi-fi", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(contexto, "Ative o Wi-fi", Toast.LENGTH_LONG).show();
                         Looper.loop();
-                        
+
                     }
 
 
@@ -249,19 +249,14 @@ public class MyForeGroundService extends Service {
 //                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                            startActivity(intent);
                         }
-
-
                     } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         getLocation();
                     }
-
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
             }
         }
-
     }
 //    public Location getLastKnownLocation() {
 //        if (ActivityCompat.checkSelfPermission(contexto, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -288,14 +283,6 @@ public class MyForeGroundService extends Service {
                 manager.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
-    public void ligarGPS() {
-        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        Toast.makeText(contexto, "Ative a localização do seu aparelho, (Alta precisão)", Toast.LENGTH_LONG).show();
-
-    }
-
     private void getLocation() {
 
         if (ActivityCompat.checkSelfPermission(contexto, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -316,8 +303,8 @@ public class MyForeGroundService extends Service {
                 lattitude = String.valueOf(latti);
                 longitude = String.valueOf(longi);
 
-                Log.e("localização", " Lattitude = " + lattitude + " Longitude = " + longitude);
-                // enviaValor(latti, longi);
+                Log.e("localização", " LattitudeGPS = " + lattitude + " LongitudeGPS = " + longitude);
+                 //enviaValor(latti, longi);
 
             } else if (locationREDE != null) {
                 double latti = locationREDE.getLatitude();
@@ -325,7 +312,7 @@ public class MyForeGroundService extends Service {
                 lattitude = String.valueOf(latti);
                 longitude = String.valueOf(longi);
 
-                Log.e("localização", " Lattitude = " + lattitude + " Longitude = " + longitude);
+                Log.e("localização", " LattitudeNet= " + lattitude + " LongitudeNet = " + longitude);
                 //enviaValor(latti, longi);
 
 
@@ -358,7 +345,7 @@ public class MyForeGroundService extends Service {
     class MyLocationListener implements LocationListener {
         @Override
         public void onLocationChanged(Location location) {
-            Log.e("localização", " Lattitude = " + location.getLongitude() + " Longitude = " + location.getLongitude());
+            Log.e("localização", " Lattitude espera = " + location.getLongitude() + " Longitude espera = " + location.getLongitude());
         }
 
         @Override
